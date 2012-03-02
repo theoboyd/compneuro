@@ -18,28 +18,25 @@ NEEC = 500; % number of excitatory-excitatory connections in a module
 
 % Make blank brain
 total = NI + (NE * NEM);
-completeBrain = CWCompleteNet(total, 0);
+connectivityMatrix = CWCompleteNet(total, 0);
+neuronArray = zeros(1, total);
 
 % Create NE modules
 probNEEC = NEEC / (NE*NE);
 for m = 1:NEM
     for i = ((m-1)*NE + 1):((m)*NE)
        for j = ((m-1)*NE + 1):((m)*NE)
-          completeBrain(i, j) = rand < probNEEC;
+          connectivityMatrix(i, j) = rand < probNEEC;
        end
     end
 end
 
 % Create NI module
-startNI = (NE * NEM) + 1;
-endNI = total;
+startNI = (NE * NEM) + 1
+endNI = total
 NENEM = NE*NEM;
-for i = startNI:endNI
-   for j = 1:total
-       % Connect to other inhibitory neuron
-       completeBrain(i, j) = 1;
-   end
-end
+
+connectivityMatrix(startNI:endNI, 1:total) = ones(endNI-startNI+1, total);
 
 % Build incoming connections to inhibitory
 counter = 0;
@@ -54,7 +51,7 @@ for i = startNI:endNI
    for n = 1:4
       neuron = moduleOffset + randi([1, NE]);
       % Find one of this neuron's ex-ex connections to rewire
-      indices = find(completeBrain(1:NENEM, neuron));
+      indices = find(connectivityMatrix(1:NENEM, neuron));
       indices = indices';
       [~, length] = size(indices);
       if length == 0
@@ -63,10 +60,10 @@ for i = startNI:endNI
           index = randi([1, length]);
           % Rewire to our inhibitory neuron
           counter = counter + 1
-          completeBrain(indices(index), neuron) = 0;     
-          completeBrain(j, neuron) = 1;
+          connectivityMatrix(indices(index), neuron) = 0;     
+          connectivityMatrix(j, neuron) = 1;
       end
    end
 end
 
-ouput = completeBrain;
+ouput = connectivityMatrix;

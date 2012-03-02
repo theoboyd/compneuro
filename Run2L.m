@@ -29,9 +29,9 @@ end
 
 for t = 1:Tmax
    
-   % Display time every 10ms
+   % Don't Display time every 10ms
    if mod(t,10) == 0
-      t
+      t;
    end
    
    % Deliver a constant base current to layer 1
