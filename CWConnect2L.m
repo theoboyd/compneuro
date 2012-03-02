@@ -1,22 +1,20 @@
 function CWConnect2L
 % Constructs two layers of Izhikevich neurons and connects them together
 
-
 % Layers are N by M arrays of neurons
+MODULES = 8;                    % Number of modules
+NpM = 100;                      % (Excitatory) neurons per module
 
-Width1 = 800;
-Height1 = 1;
+NEEC = 500;                     % Number of excitatory-to-excitatory connections per module
+probNEEC = NEEC / (NpM*NpM);    % Probability of a possible intra-module connection being made
 
-Width2 = 200;
-Height2 = 1;
+ENs = NpM*MODULES;              % How many excitatory neurons?
+INs = 200;                      % How many inhibitory neurons?
 
-NEEC = 500;
-NE = 100;
-probNEEC = NEEC / (NE*NE);
+EN = 1; % Layer labels
+IN = 2;
 
-F = 50/sqrt(Width1*Height1); % scaling factor
-
-D = 5; % conduction delay
+SFSF = 1/sqrt(EN*IN); % Scaling-factor scaling factor
 
 
 % Neuron parameters
@@ -26,29 +24,29 @@ D = 5; % conduction delay
 % multiply r by zero.)
 
 % Layer 1 (regular spiking)
-r = rand(Width1,Height1);
-layer{1}.rows = Width1;
-layer{1}.columns = Height1;
-layer{1}.a = 0.02*ones(Width1,Height1);
-layer{1}.b = 0.2*ones(Width1,Height1);
-layer{1}.c = -65+15*r.^2;
-layer{1}.d = 8-6*r.^2;
+r = rand(ENs,1);
+layer{EN}.rows = ENs;
+layer{EN}.columns = 1;
+layer{EN}.a = 0.02*ones(ENs,1);
+layer{EN}.b = 0.2*ones(ENs,1);
+layer{EN}.c = -65+15*r.^2;
+layer{EN}.d = 8-6*r.^2;
 
-% Layer 2 (regular spiking)
-r = rand(Width2,Height2);
-layer{2}.rows = Width2;
-layer{2}.columns = Height2;
-layer{2}.a = 0.02*ones(Width2,Height2);
-layer{2}.b = 0.25*ones(Width2,Height2);
-layer{2}.c = -65+15*r.^2;
-layer{2}.d = 2-6*r.^2;
+% Layer 2 (inh spiking)
+r = rand(INs,1);
+layer{IN}.rows = INs;
+layer{IN}.columns = 1;
+layer{IN}.a = 0.02*ones(INs,1);
+layer{IN}.b = 0.25*ones(INs,1);
+layer{IN}.c = -65+15*r.^2;
+layer{IN}.d = 2-6*r.^2;
 
 
 % Connectivity matrix (synaptic weights)
 % layer{i}.S{j} is the connectivity matrix from layer j to layer i
 % s(i,j) is the strength of the connection from neuron j to neuron i
 
-% Clear connectivity matrices
+% Clear connectivity matrices (YAY GLOBALS D:)
 L = length(layer);
 for i=1:L
    for j=1:L
@@ -58,21 +56,40 @@ for i=1:L
    end
 end
 
-% Inhib to excit
-layer{1}.S{2} = ones(Width1*Height1,Width2*Height2); % all to all connections
-
-% Inhib to inhib
-layer{2}.S{2} = ones(Width2*Height2, 1);
-
 % Excitatory to excitatory
-layer{1}.S{1} = rand(Width1*Height1,1)<; 
+layer{EN}.factor{EN} = 17*SFSF;
+layer{EN}.delay{EN} = rand(ENs,ENs)*20;
+layer{EN}.S{EN} = zeros(ENs,ENs);
+for module=0:(MODULES-1)
+    offset = module*NpM;
+    for n1=1:NpM
+        for n2=1:NpM
+            if rand()<probNEEC
+                layer{EN}.S{EN}(n1+offset, n2+offset) = 1;
+            end
+        end
+    end
+end
 
 % Excitatory to inhibitory
-layer{2}.S{1} = 
+layer{IN}.factor{EN} = 50*SFSF;
+layer{IN}.delay{EN} = ones(INs,ENs);
+layer{IN}.S{EN} = zeros(INs,ENs);
+for inh=1:INs
+    module=randi([0 MODULES-1]);
+    for xx=1:4
+        layer{IN}.S{EN}(inh, module*NpM + randi([1 NpM])) = rand();
+    end
+end
 
-layer{2}.factor{1} = F; % scaling factor
+% Inhibitory to excitatory
+layer{EN}.factor{IN} = 2*SFSF;
+layer{EN}.delay{IN} = ones(ENs,INs);
+layer{EN}.S{IN} = -1*rand(ENs,INs); % all to all connections
 
-layer{2}.delay{1} = ones(Width2*Height2,Width1*Height1)*D; % conduction delays
-
+% Inhibitory to inhibitory
+layer{IN}.factor{IN} = 1*SFSF;
+layer{IN}.delay{IN} = ones(INs,INs);
+layer{IN}.S{IN} = -1*rand(INs, INs); % all to all connections
 
 save('Network.mat','layer');
