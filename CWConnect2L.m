@@ -1,4 +1,4 @@
-function CWConnect2L
+function CWConnect2L(rewireProb)
 % Constructs two layers of Izhikevich neurons and connects them together
 
 % Layers are N by M arrays of neurons
@@ -65,7 +65,11 @@ for module=0:(MODULES-1)
     for n1=1:NpM
         for n2=1:NpM
             if rand()<probNEEC
-                layer{EN}.S{EN}(n1+offset, n2+offset) = 1;
+                if rand()<rewireProb
+                    layer{EN}.S{EN}(randi([1 ENs]), n2+offset) = 1; % As if it's been randomly rewired to a new destination (anywhere!)
+                else
+                    layer{EN}.S{EN}(n1+offset, n2+offset) = 1;      % Normal intra-cluster connection
+                end
             end
         end
     end
