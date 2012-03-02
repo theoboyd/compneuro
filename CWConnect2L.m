@@ -78,7 +78,7 @@ layer{IN}.S{EN} = zeros(INs,ENs);
 for inh=1:INs
     module=randi([0 MODULES-1]);
     for xx=1:4
-        layer{IN}.S{EN}(inh, module*NpM + randi([1 NpM])) = rand();
+        layer{IN}.S{EN}(inh, module*NpM + randi([1 NpM])) = rand(); % TODO Could pick the same source exc. neuron twice! (fix plz)
     end
 end
 
