@@ -14,7 +14,7 @@ INs = 200;                      % How many inhibitory neurons?
 EN = 1; % Layer labels
 IN = 2;
 
-SFSF = 1/sqrt(EN*IN); % Scaling-factor scaling factor
+SFSF = 1; % Scaling-factor scaling factor
 
 
 % Neuron parameters
@@ -32,7 +32,7 @@ layer{EN}.b = 0.2*ones(ENs,1);
 layer{EN}.c = -65+15*r.^2;
 layer{EN}.d = 8-6*r.^2;
 
-% Layer 2 (inh spiking)
+% Layer 2 (fast spiking)
 r = rand(INs,1);
 layer{IN}.rows = INs;
 layer{IN}.columns = 1;
