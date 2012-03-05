@@ -5,7 +5,7 @@ function CWConnect2L(rewireProb)
 MODULES = 8;                    % Number of modules
 NpM = 100;                      % (Excitatory) neurons per module
 
-NEEC = 500;                     % Number of excitatory-to-excitatory connections per module
+NEEC = 1000;                     % Number of excitatory-to-excitatory connections per module
 probNEEC = NEEC / (NpM*NpM);    % Probability of a possible intra-module connection being made
 
 ENs = NpM*MODULES;              % How many excitatory neurons?
