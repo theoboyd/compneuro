@@ -39,7 +39,7 @@ layer{IN}.columns = 1;
 layer{IN}.a = 0.02*ones(INs,1);
 layer{IN}.b = 0.25*ones(INs,1);
 layer{IN}.c = -65+15*r.^2;
-layer{IN}.d = 2-6*r.^2;
+layer{IN}.d = 2-1*r.^2;
 
 
 % Connectivity matrix (synaptic weights)
