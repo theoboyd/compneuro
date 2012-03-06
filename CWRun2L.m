@@ -17,6 +17,7 @@ Tmax = 1000; % Simulation time
 Ib = 0; % Base current
 
 MODULES = 8; % Number of modules
+PERMODULE = 100;
 
 % Initialise layers
 for lr=1:length(layer)
@@ -165,19 +166,23 @@ xlim([0 Tmax])
 winSize = 20;
 windows = 1000/winSize;
 bucket = zeros(MODULES, windows); % Buckets for each module 
-for module=0:(MODULES-1)
-    for window=1:(windows-1)
-        for firing=1:length(firings1)
-            start = window*winSize;
-            if ismember(t, start:(start + 20))
-               % Time is within the range of the window
-               bucket(module + 1, window) = bucket(module + 1, window) + 1;
-               
-            end
+for window=1:(windows-1)
+    for firing=1:length(firings1)
+        start = window*winSize;
+        t = firings1(firing,1);
+        v = firings1(firing,2);
+        if ismember(t, start:(start + 20))
+           % Time is within the range of the window
+           bucket(ceil(v/PERMODULE), window) = bucket(ceil(v/PERMODULE), window) + 1;
+
         end
     end
-    plot(1:Tmax, bucket(module + 1))
+end
+for module=1:MODULES
+    plot(1:windows, bucket((module-1)*windows+1 : module*windows))
+    hold all
 end
 title('Module mean firing rates')
+hold off
 
 drawnow
