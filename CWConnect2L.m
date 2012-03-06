@@ -58,7 +58,7 @@ end
 
 % Excitatory to excitatory
 layer{EN}.factor{EN} = 17*SFSF;
-layer{EN}.delay{EN} = rand(ENs,ENs)*20;
+layer{EN}.delay{EN} = randi([0 20],ENs,ENs);
 layer{EN}.S{EN} = zeros(ENs,ENs);
 for module=0:(MODULES-1)
     offset = module*NpM;
