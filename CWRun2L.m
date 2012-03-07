@@ -1,4 +1,4 @@
-function Run2L
+function CWRun2L
 % Simulates two layers (imported from saved file) of Izhikevich neurons
 
 
@@ -16,8 +16,8 @@ Tmax = 1000; % Simulation time
 
 Ib = 0; % Base current
 
-MODULES = 8; % Number of modules
-PERMODULE = 100;
+MODULES = 8;                    % Number of modules
+NpM = 100;                      % (Excitatory) neurons per module
 
 % Initialise layers
 for lr=1:length(layer)
@@ -31,8 +31,8 @@ end
 
 for t = 1:Tmax
    
-   % Display time every 10ms
-   if mod(t,10) == 0
+   % Display time every 50ms
+   if mod(t,50) == 0
       t
    end
    
@@ -110,24 +110,29 @@ end
 
 % Matrix connectivity plot
 
+ca = [-1.0 1.0];
 figure(1)
 clf
 
 subplot(2,2,1)
-imagesc(layer{1}.S{1})
+imagesc(layer{1}.S{1}); caxis(ca)
 title('Excitatory to excitatory')
 
 subplot(2,2,2)
-imagesc(layer{2}.S{1})
+imagesc(layer{2}.S{1}); caxis(ca)
 title('Excitatory to inhibitory')
 
 subplot(2,2,3)
-imagesc(layer{1}.S{2})
+imagesc(layer{1}.S{2}); caxis(ca)
 title('Inhibitory to excitatory')
 
 subplot(2,2,4)
-imagesc(layer{2}.S{2})
+imagesc(layer{2}.S{2}); caxis(ca)
+colorHandle = colorbar('SouthOutside');
 title('Inhibitory to inhibitory')
+
+set(colorHandle, 'Position', [0.468 0.495 0.1 0.04]);
+suptitle('Matrix connectivity plot')
 
 % Raster plots of firings
 
@@ -159,26 +164,37 @@ title('Inhibitory neuron firings')
 
 % Mean firing rate plot
 
-figure(3)
+figure(3);
 clf
 
+ylabel('Time (ms)')
 xlim([0 Tmax])
+ylabel('Firings (Hz)')
+% set(h, 'YTick', [5 10 20 30 40 50 60]);
+
 winSize = 20;
 windows = 1000/winSize;
-bucket = zeros(MODULES, windows); % Buckets for each module 
+bucket = zeros(MODULES, windows); % Buckets for each module
+% movAvgBucket = zeros(MODULES, 1);
 for window=1:(windows-1)
     for firing=1:length(firings1)
         start = window*winSize;
         t = firings1(firing,1);
-        v = firings1(firing,2);
         if ismember(t, start:(start + 20))
            % Time is within the range of the window
-           bucket(ceil(v/PERMODULE), window) = bucket(ceil(v/PERMODULE), window) + 1;
-
+           neuron = firings1(firing,2);
+           bucket(ceil(neuron/NpM), window) = bucket(ceil(neuron/NpM), window) + 1;
         end
     end
 end
+
+% for module=1:MODULES
+%     movAvgBucket(module) = tsmovavg(bucket(module), 's', 20, 1);
+% end
+
 for module=1:MODULES
+    %plot(1:windows, movAvgBucket(module))
+    %plot(1:windows, timeseries(bucket(module))
     plot(1:windows, bucket((module-1)*windows+1 : module*windows))
     hold all
 end
