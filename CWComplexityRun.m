@@ -1,4 +1,4 @@
-function CWComplexityRun(simTime)
+function C = CWComplexityRun(simTime)
 % Simulates two layers (imported from saved file) of Izhikevich neurons
 
 
@@ -16,7 +16,6 @@ Ib = 0; % Base current
 
 MODULES = 8; % Number of modules
 NpM = 100; % (Excitatory) neurons per module
-TRIALS = 20; % Number of trials
 
 % Initialise layers
 for lr=1:length(layer)
@@ -70,7 +69,7 @@ winSize = 20;
 windows = simTime/winSize;
 bucket = zeros(MODULES, windows); % Buckets for each module
 % movAvgBucket = zeros(MODULES, 1);
-for window=0:(windows-1)
+for window=50:(windows-1) % discard a full second at the start
     for firing=1:length(firings1)
         start = (window*winSize) + 1;
         t = firings1(firing, 1);
@@ -82,37 +81,18 @@ for window=0:(windows-1)
     end
 end
 
+differenced = aks_diff(bucket); % Difference once
+differenced = aks_diff(differenced)'; % Difference twice
 
-differenced = aks_diff(bucket'); % Difference once
-differenced = aks_diff(differenced); % Difference twice
-
-C = zeros(TRIALS, numel(differenced))
-C(1)
-for trial=1:TRIALS
-    C(trial) = neuralComplexity(differenced);
-end
-plot(1:windows, differenced((module-1)*windows+1 : module*windows))
-
-f4 = figure;
-clf
-xlabel('Rewiting probability p')
-xlim([0.1 0.5])
-ylabel('Neural complexity')
-ylim([0 0.01])
-title('Neural complexity')
-
-
-holdoff
-draw now
-saveas(f4, ['CWQuestion2.fig'], 'fig')
+C = neuralComplexity(differenced);
 
 end
 
 function sum = neuralComplexity(S)
     sum = 0;
-    n = numel(S);
-    for i=1:n
-       sum = sum + MI(S(i), S) - I(S);
+    [q n] = size(S);
+    for xx=1:n
+       sum = sum + MI(S(:, xx), S) - I(S);
     end
 end
 
@@ -121,16 +101,16 @@ function output = MI(X, S)
 end
 
 function output = H(S)
-    n = numel(S);
-    abscovar =  abs(cov(S));
+    [q n] = size(S);
+    abscovar =  det(cov(S));
     logpart = log(2 * pi * exp(1)) .^n;
     output = 0.5 * logpart * abscovar;
 end
 
 function sum = I(S)
     sum = 0;
-    n = numel(S);
-    for i=1:n
-        sum = sum + H(S(i)) - H(S);
+    [q n] = size(S);
+    for xx=1:n
+        sum = sum + H(S(:, xx)) - H(S);
     end
 end
