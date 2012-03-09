@@ -1,4 +1,4 @@
-function CWRun2L(rewireProb)
+function CWRun2L(rewireProb, simTime)
 % Simulates two layers (imported from saved file) of Izhikevich neurons
 
 
@@ -11,8 +11,6 @@ N2 = layer{2}.rows;
 M2 = layer{2}.columns;
 
 Dmax = 21; % Maximum propagation delay
-
-Tmax = 1000; % Simulation time
 
 Ib = 0; % Base current
 
@@ -27,7 +25,7 @@ for lr=1:length(layer)
 end
 
 % Simulate
-for t = 1:Tmax
+for t = 1:simTime
    
    % Display time every 50ms
    if mod(t,50) == 0
@@ -101,7 +99,7 @@ if ~isempty(firings1)
    plot(firings1(:,1),firings1(:,2),'.')
 end
 % xlabel('Time (ms)')
-xlim([0 Tmax])
+xlim([0 simTime])
 ylabel('Neuron number')
 ylim([0 N1*M1+1])
 set(gca,'YDir','reverse')
@@ -112,7 +110,7 @@ if ~isempty(firings2)
    plot(firings2(:,1),firings2(:,2),'.')
 end
 xlabel('Time (ms)')
-xlim([0 Tmax])
+xlim([0 simTime])
 ylabel('Neuron number')
 ylim([0 N2*M2+1])
 set(gca,'YDir','reverse')
@@ -122,23 +120,18 @@ title('Inhibitory neuron firings')
 % Mean firing rate plot
 f3 = figure(3);
 clf
-ylabel('Time (ms)')
-xlim([0 Tmax])
-ylabel('Firings (Hz)')
-% set(h, 'YTick', [5 10 20 30 40 50 60]);
-
 winSize = 20;
-windows = 1000/winSize;
+windows = simTime/winSize;
 bucket = zeros(MODULES, windows); % Buckets for each module
 % movAvgBucket = zeros(MODULES, 1);
-for window=1:(windows-1)
+for window=0:(windows-1)
     for firing=1:length(firings1)
-        start = window*winSize;
-        t = firings1(firing,1);
-        if ismember(t, start:(start + 20))
+        start = (window*winSize) + 1;
+        t = firings1(firing, 1);
+        if ismember(t, start:(start + winSize))
            % Time is within the range of the window
            neuron = firings1(firing,2);
-           bucket(ceil(neuron/NpM), window) = bucket(ceil(neuron/NpM), window) + 1;
+           bucket(ceil(neuron/NpM), window + 1) = bucket(ceil(neuron/NpM), window + 1) + 1;
         end
     end
 end
@@ -153,6 +146,13 @@ for module=1:MODULES
     plot(1:windows, bucket((module-1)*windows+1 : module*windows))
     hold all
 end
+xlabel('Time (ms)')
+% xlim([0 windows*winSize])
+% ticks = 10;
+% xl = get(gca,'XLim'); 
+% set(gca, 'XTick', linspace(xl(1), xl(2), ticks)) 
+set(gca, 'XTickLabel', [0:windows*2:simTime]);
+ylabel('Firings (Hz)')
 title('Module mean firing rates')
 hold off
 
