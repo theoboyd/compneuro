@@ -1,3 +1,4 @@
 function CWQuestion2
 
-%TODO
+rewireProb = 0.1 + (0.4).*rand(); % Random value between 0.1 and 0.5
+CWConnect2L(rewireProb);
