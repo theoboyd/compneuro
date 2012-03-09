@@ -1,4 +1,4 @@
-function CWRun2L
+function CWRun2L(rewireProb)
 % Simulates two layers (imported from saved file) of Izhikevich neurons
 
 
@@ -16,8 +16,8 @@ Tmax = 1000; % Simulation time
 
 Ib = 0; % Base current
 
-MODULES = 8;                    % Number of modules
-NpM = 100;                      % (Excitatory) neurons per module
+MODULES = 8; % Number of modules
+NpM = 100; % (Excitatory) neurons per module
 
 % Initialise layers
 for lr=1:length(layer)
@@ -26,9 +26,7 @@ for lr=1:length(layer)
    layer{lr}.firings = [];
 end
 
-
-% SIMULATE
-
+% Simulate
 for t = 1:Tmax
    
    % Display time every 50ms
@@ -69,49 +67,9 @@ if ~isempty(firings2)
    v2(sub2ind(size(v2),firings2(:,1),firings2(:,2))) = 30;
 end
 
-
-% % Plot membrane potentials
-% 
-% figure(1)
-% clf
-% 
-% subplot(2,1,1)
-% plot(1:Tmax,v1)
-% title('Population 1 membrane potentials')
-% ylabel('Voltage (mV)')
-% ylim([-90 40])
-% % xlabel('Time (ms)')
-% 
-% subplot(2,1,2)
-% plot(1:Tmax,v2)
-% % plot(1:Tmax,v2(:,1))
-% title('Population 2 membrane potentials')
-% ylabel('Voltage (mV)')
-% ylim([-90 40])
-% xlabel('Time (ms)')
-% 
-% 
-% % Plot recovery variable
-% 
-% figure(2)
-% clf
-% 
-% subplot(2,1,1)
-% plot(1:Tmax,u1)
-% title('Population 1 recovery variables')
-% % xlabel('Time (ms)')
-% 
-% subplot(2,1,2)
-% plot(1:Tmax,u2)
-% % plot(1:Tmax,u2(:,1))
-% title('Population 2 recovery variables')
-% xlabel('Time (ms)')
-
-
 % Matrix connectivity plot
-
 ca = [-1.0 1.0];
-figure(1)
+f1 = figure(1);
 clf
 
 subplot(2,2,1)
@@ -135,8 +93,7 @@ set(colorHandle, 'Position', [0.468 0.495 0.1 0.04]);
 suptitle('Matrix connectivity plot')
 
 % Raster plots of firings
-
-figure(2)
+f2 = figure(2);
 clf
 
 subplot(2,1,1)
@@ -163,10 +120,8 @@ title('Inhibitory neuron firings')
 
 
 % Mean firing rate plot
-
-figure(3);
+f3 = figure(3);
 clf
-
 ylabel('Time (ms)')
 xlim([0 Tmax])
 ylabel('Firings (Hz)')
@@ -202,3 +157,7 @@ title('Module mean firing rates')
 hold off
 
 drawnow
+
+saveas(f1, ['CWQuestion1a-p', num2str(rewireProb), '.fig'], 'fig')
+saveas(f2, ['CWQuestion1b-p', num2str(rewireProb), '.fig'], 'fig')
+saveas(f3, ['CWQuestion1c-p', num2str(rewireProb), '.fig'], 'fig')
